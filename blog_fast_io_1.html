@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>fast io</title>
+	<link rel="stylesheet" href="header.css">
+	<link rel="stylesheet" href="blog.css">
+	<link rel="stylesheet" href="main.css">
+	<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  
+</head>
+<body>
+	<header>
+		<ul>
+		    <li><a href="index.html">Блог</a></li>
+		    <li><a href="#algo.html">Алгоритмы</a></li>
+		</ul>
+	</header>
+	<main>
+		<div class = "blogHeader">
+			ввод и вывод
+		</div>
+		<div class = "blogMain">
+		<p>	В некоторых задачах бывает очень много входных данных, поэтому тут я соберу ценные советы как ускорить ввод и вывод</p>
+		<p>1) ипользуйте \('\n'\) вместо \(endl\)</p>
+		<p>\(endl\) не только переносит строку но и сбрасывает буфер вывода, что замедляет процесс.</p>
+		<p>Но будте осторожны в интерактивных задачах, так как раз таки и нужно сбрасывать буфер</p>
+		<p>2) 
+		<pre><code>
+	ios_base::sync_with_stdio(false);
+	cout.tie(0);
+	cin.tie(0);
+		</code></pre></p>
+		<p>
+			первая строчка отключает синхронизацию потока ввода для scanf и cin<br>
+			Если вы используете их вместе - это не для вас<br>
+			Это ускоряет ввод и вывод, так как не приходтся проверять, а не изменилось ли ничего с последнего вывода вывода
+		</p>
+		<p>
+			Вторая строчка вообще не особо нужна, но я ее пишу на удачу<br>
+			Третья строчка отключает сброс буфера при вводе
+		</p>
+		<p>
+			А что если нужно прямо очень быстро читать???
+			Ну, есть вот такая вот вещь: <a href = "https://archive.lksh.ru/2018/july/A/lib/optimization.h.html">ТЫК</a><br>
+			Это библиотека Сергея Копелиовича которая умеет много всего, но это все еще не самый быстрый способ
+		</p>
+		<p>
+			Давайте воспользуемся тем, что мы пишем конкретный ввод под конкретную задачу, значит - мы знаем формат входных данных. Таким образом можно избавиться от большого количества ненужных проверок.<br>
+			Как пример: для решения задачи о вводе числа N  и последующем вводе N неотрицательных чисел типа int вполне подойдет и вот такая реализация:<br>
+			<pre><code>
+	const int _size = 1 << 13;
+	unsigned char buff[_size | 1];
+	short int pos = _size;
+	char c;
+
+	inline void getBuff() {
+	    pos = fread(buff, 1, _size, stdin);
+	    buff[pos] = '\n';
+	    pos = 0;
+	}
+
+	inline void getChar() {
+	    if (pos == _size)
+	        getBuff();
+	    c = buff[pos];
+	    ++pos;
+	}
+
+	inline int getInt() {
+	    getChar();
+	    int ans = 0;
+	    while (c != '\n' && c != ' ') {
+	        ans = ans * 10 + c - '0';
+	        getChar();
+	    }
+	    return ans;
+	}
+			</code></pre>
+		</p>
+		<p>
+			Согласитесь, не такая страшная реализация.<br>
+			Для сравнения давайте посмотрим на эти посылки по этой <a href = "https://codeforces.com/contest/1293/problem/C">задаче</a>:<br>
+			<a href = "https://codeforces.com/contest/1293/submission/69995034">без всего</a>: 514мс !!!<br>
+			<a href = "https://codeforces.com/contest/1293/submission/69995074">с тремя магическими строчками</a>: 78мс<br>
+			<a href = "https://codeforces.com/contest/1293/submission/69995141">optimization.h</a>: 46мс<br>
+			<a href = "https://codeforces.com/contest/1293/submission/69995734">простая реализация</a>: 46мс<br>
+		</p>
+		<p>
+			Ну а дальше вам придется просто мне поверить:<br>
+			для ввода \(10^7\) целых неотрицательных чисел int необходимо:<br>
+			без всего: ~20500мс<br>
+			3 строчки: ~2400мс<br>
+			optimization.h: ~740мс<br>
+			эта реализация: ~480мс<br>
+			Таким образом мы видим, что писать ввод под конкретную задачу куда продуктивнее, чем пользоваться обобщенными методами ввода
+		</p>
+		<p>
+			Аналогично можно написать и вывод.<br>
+			Думаю вы уловили логику - пользуясь тем, что вы знаете что вы хотите считать/вывести уменьшать количество проверок и вообще ненужных действий
+		</p>
+		</div>
+	</main>
+	<footer>
+		
+	</footer>
+</body>
+</html>
