@@ -8,10 +8,29 @@ main {
 	background-color: #DDD;
 }
 
+pre,
 code {
-	background-color: white;
-	display: block;
-	white-space: pre-wrap;
+  background-color: #fafaff;
+  border: 1px solid #c6c4f4;
+  border-radius: 4px;
+  color: #3632ad;
+  font-family: "Courier New", "Courier", monospace;
+  white-space: pre-wrap;
+}
+
+pre {
+  padding: 5px;
+}
+
+code {
+  padding: 2px 5px;
+}
+
+
+pre code {
+  background-color: transparent;
+  border-radius: 0;
+  border: none;
 }
 
 .blogPre {
