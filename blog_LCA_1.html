@@ -40,40 +40,40 @@
 	Для начала рассмотрим самую простую реализацию поиска LCA:
 	</p>
 	<pre><code>
-		vector&lt;vector&lt;int&gt;&gt; gr; \\ наш граф
-		vector&lt;int&gt; pre; \\ массив предков
-		vector&lt;int&gt; d; \\ массив глубин
+	vector&lt;vector&lt;int&gt;&gt; gr; \\ наш граф
+	vector&lt;int&gt; pre; \\ массив предков
+	vector&lt;int&gt; d; \\ массив глубин
 
-		void dfs(int v, int p = -1) {
-			if (p == -1)
-				d[v] = 0;
+	void dfs(int v, int p = -1) {
+		if (p == -1)
+			d[v] = 0;
+		else
+			d[v] = d[p] + 1;
+		pre[v] = p;
+		for (int to : gr[v]) 
+			if (to != p)
+				dfs(to, v);
+	}
+
+	int getLCA(int a, int b) {
+		while (a != b) {
+			if (d[a] > d[b]) 
+				a = pre[a];
 			else
-				d[v] = d[p] + 1;
-			pre[v] = p;
-			for (int to : gr[v]) 
-				if (to != p)
-					dfs(to, v);
+				b = pre[b];
 		}
+		return a;
+	} 
 
-		int getLCA(int a, int b) {
-			while (a != b) {
-				if (d[a] > d[b]) 
-					a = pre[a];
-				else
-					b = pre[b];
-			}
-			return a;
-		} 
+	int main() {
+		... // считываем граф
+		dfs(root) // запускаем дфс от корня
 
-		int main() {
-			... // считываем граф
-			dfs(root) // запускаем дфс от корня
-
-			for () {
-				... // считываем запрос
-				getLCA(a, b); // отвечаем на него
-			}
+		for () {
+			... // считываем запрос
+			getLCA(a, b); // отвечаем на него
 		}
+	}
 	</code></pre>
 	<p>
 		Почему это верно? 
@@ -113,25 +113,25 @@
 	Для начала разберемся, как их предпосчитать.
 	</p>
 	<p><pre><code>
-		vector&lt;vector&lt;int&gt;&gt; gr;
-		vector&lt;int&gt; d;
-		vector&lt;vector&lt;int&gt;&gt; bl; // бинарные подъемы
-		// этот массив следует инициализировать так: bl[log(n)+1][n]
-		// log(n)+1 ассив по n элементов
+	vector&lt;vector&lt;int&gt;&gt; gr;
+	vector&lt;int&gt; d;
+	vector&lt;vector&lt;int&gt;&gt; bl; // бинарные подъемы
+	// этот массив следует инициализировать так: bl[log(n)+1][n]
+	// log(n)+1 ассив по n элементов
 
-		void dfs(int v, int p = -1) {
-			if (p == -1) { 
-				p = v;
-				d[v] = 0;
-			} 
-			else
-				d[v] = d[p] + 1;
-			bl[0][v] = p;
-			for (int i = 1; i < bl.size(); ++i)
-				bl[i][v] = bl[i-1][bl[i-1][v]];
-			for (int to : gr[v])
-				dfs(to, v);
-		}
+	void dfs(int v, int p = -1) {
+		if (p == -1) { 
+			p = v;
+			d[v] = 0;
+		} 
+		else
+			d[v] = d[p] + 1;
+		bl[0][v] = p;
+		for (int i = 1; i < bl.size(); ++i)
+			bl[i][v] = bl[i-1][bl[i-1][v]];
+		for (int to : gr[v])
+			dfs(to, v);
+	}
 	</code></pre></p>
 	<p>
 	Почему это работает? В цикле построения bl мы говорим, что подняться на \(2^i\) то же самое, что подняться на \(2^{i-1}\) два раза.
@@ -143,25 +143,25 @@
 	Как же тут отвечать на запрос? Давайте разбираться.<br>
 	</p>
 	<p><pre><code>
-		int getLCA(int a, int b) {
-			if (d[a] > d[b])
-				swap(a, b); 
-			// Теперь b глубже a
-			for (int i = bl.size() - 1; i >= 0; --i) 
-				if (d[bl[i][b]] >= d[a])
-					b = bl[i][b];
-			// Теперь их глубины равны
-			if (a == b)
-				return a; // Если они равны, то это и есть LCA
+	int getLCA(int a, int b) {
+		if (d[a] > d[b])
+			swap(a, b); 
+		// Теперь b глубже a
+		for (int i = bl.size() - 1; i >= 0; --i) 
+			if (d[bl[i][b]] >= d[a])
+				b = bl[i][b];
+		// Теперь их глубины равны
+		if (a == b)
+			return a; // Если они равны, то это и есть LCA
 
-			for (int i = bl.size() - 1; i >= 0; --i)
-				if (bl[i][b] != bl[i][a]) {
-					a = bl[i][a];
-					b = bl[i][b];
-				}
-			//Теперь верно, что a != b и их глубина минимальна
-			return bl[0][a];
-		}
+		for (int i = bl.size() - 1; i >= 0; --i)
+			if (bl[i][b] != bl[i][a]) {
+				a = bl[i][a];
+				b = bl[i][b];
+			}
+		//Теперь верно, что a != b и их глубина минимальна
+		return bl[0][a];
+	}
 	</code></pre></p>
 	<p>
 	Теперь есть два варианта:<br>
@@ -178,16 +178,16 @@
 	После этого расстояние уменьшится на эту степень двойки, и мы перейдем к меньшему расстоянию, с которым по аналогии возьмем переход в соответствии с максимальным битом.
 	Кстати, на этом можно основать некоторую оптимизацию. Вместо цикла <br>
 	<pre><code>
-		for (int i = bl.size() - 1; i >= 0; --i)
-			if (d[bl[i][b]] >= d[a])
-				b = bl[i][b];
+	for (int i = bl.size() - 1; i >= 0; --i)
+		if (d[bl[i][b]] >= d[a])
+			b = bl[i][b];
 	</code></pre>
 	писать 
 	<pre><code>
-		int x = d[b] - d[a];
-		for (int i = bl.size() - 1; i >= 0; --i)
-			if (x & (1 << i))
-				b = bl[i][b];
+	int x = d[b] - d[a];
+	for (int i = bl.size() - 1; i >= 0; --i)
+		if (x & (1 << i))
+			b = bl[i][b];
 	</code></pre>
 	Так как тут меньше операций и они более простые, то и работать будет быстрее (чуть-чуть).
 	</p>
@@ -215,47 +215,47 @@
 	Например, сумму можно считать так: если \(sum[v]\) - сумма на пути до вершины v, то сумма на пути от a до b считается как \(sum[a] + sum[b] - 2 * sum[LCA]\). Это если значения записаны на ребрах.<br> С минимумом так не выйдет.
 	</p>
 	<p><pre><code>
-		vector&lt;vector&lt;pair&lt;int, int&gt;&gt;&gt; gr;
-		vector&lt;int&gt; d;
-		vector&lt;vector&lt;pair&lt;int, int&gt;&gt;&gt; bl;
+	vector&lt;vector&lt;pair&lt;int, int&gt;&gt;&gt; gr;
+	vector&lt;int&gt; d;
+	vector&lt;vector&lt;pair&lt;int, int&gt;&gt;&gt; bl;
 
-		void dfs(int v, int p = -1, int pEdge = inf) {
-			if (p == -1) { 
-				p = v;
-				d[v] = 0;
+	void dfs(int v, int p = -1, int pEdge = inf) {
+		if (p == -1) { 
+			p = v;
+			d[v] = 0;
+		}
+		else
+			d[v] = d[p] + 1;
+		bl[0][v] = {p, pEdge};
+		for (int i = 1; i < bl.size(); ++i)
+			bl[i][v] = {bl[i-1][bl[i-1][v].first].first, min(bl[i-1][v].second, bl[i-1][bl[i-1][v].first].second);
+		for (pair&lt;int, int&gt; to : gr[v])
+			dfs(to.first, v, to.second);
+	}
+
+	int getMIN(int a, int b) {
+		int ans = inf;
+
+		if (d[a] > d[b])
+			swap(a, b); 
+		for (int i = bl.size() - 1; i >= 0; --i) 
+			if (d[bl[i][b].first] >= d[a]) {
+				ans = min(ans, bl[i][b].second);
+				b = bl[i][b].first;
 			}
-			else
-				d[v] = d[p] + 1;
-			bl[0][v] = {p, pEdge};
-			for (int i = 1; i < bl.size(); ++i)
-				bl[i][v] = {bl[i-1][bl[i-1][v].first].first, min(bl[i-1][v].second, bl[i-1][bl[i-1][v].first].second);
-			for (pair&lt;int, int&gt; to : gr[v])
-				dfs(to.first, v, to.second);
-		}
-
-		int getMIN(int a, int b) {
-			int ans = inf;
-
-			if (d[a] > d[b])
-				swap(a, b); 
-			for (int i = bl.size() - 1; i >= 0; --i) 
-				if (d[bl[i][b].first] >= d[a]) {
-					ans = min(ans, bl[i][b].second);
-					b = bl[i][b].first;
-				}
-			if (a == b)
-				return ans;
-
-			for (int i = bl.size() - 1; i >= 0; --i)
-				if (bl[i][b].first != bl[i][a].first) {
-					ans = min(ans, bl[i][b].second);
-					ans = min(ans, bl[i][a].second);
-					a = bl[i][a].first;
-					b = bl[i][b].first;
-				}
-			ans = min({ans, bl[i][b].second, bl[i][a].second});
+		if (a == b)
 			return ans;
-		}
+
+		for (int i = bl.size() - 1; i >= 0; --i)
+			if (bl[i][b].first != bl[i][a].first) {
+				ans = min(ans, bl[i][b].second);
+				ans = min(ans, bl[i][a].second);
+				a = bl[i][a].first;
+				b = bl[i][b].first;
+			}
+		ans = min({ans, bl[i][b].second, bl[i][a].second});
+		return ans;
+	}
 	</code></pre></p>
 	<p>
 	Ну и самое важное: время и память!<br>
@@ -274,25 +274,25 @@
 	Здесть first и last - массивы первых и последних вхождений вершины в Эйлеров обход.
 	</p>
 	<p><pre><code>
-		vector&lt;vector&lt;int&gt;&gt; gr;
-		vector&lt;int&gt; d;
-		vector&lt;pair&lt;int, int&gt;&gt; euler;
-		vector&lt;int&gt; first;
-		vector&lt;int&gt; last;
+	vector&lt;vector&lt;int&gt;&gt; gr;
+	vector&lt;int&gt; d;
+	vector&lt;pair&lt;int, int&gt;&gt; euler;
+	vector&lt;int&gt; first;
+	vector&lt;int&gt; last;
 
-		void dfs(int v, int p = -1) {
-			if (p == -1)
-				d[v] = 0;
-			else
-				d[v] = d[p] + 1;
-			first[v] = euler.size();
+	void dfs(int v, int p = -1) {
+		if (p == -1)
+			d[v] = 0;
+		else
+			d[v] = d[p] + 1;
+		first[v] = euler.size();
+		euler.push_back({v, d[v]});
+		for (int to : gr[v]) {
+			dfs(to, v);
 			euler.push_back({v, d[v]});
-			for (int to : gr[v]) {
-				dfs(to, v);
-				euler.push_back({v, d[v]});
-			}
-			last[v] = euler.size();
 		}
+		last[v] = euler.size();
+	}
 	</code></pre></p>
 	<p>
 	Теперь можно взять первый элемент и минимум по вторым элементам пар на полуинтервале, это и будет LCA.
